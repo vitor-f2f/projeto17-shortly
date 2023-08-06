@@ -26,10 +26,10 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.sessions (
     id integer NOT NULL,
-    user_id integer NOT NULL,
+    user_id integer,
     token character varying NOT NULL,
     expiration timestamp without time zone NOT NULL,
-    "createdAt" timestamp without time zone DEFAULT now() NOT NULL
+    created_at timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
@@ -59,10 +59,11 @@ ALTER SEQUENCE public.sessions_id_seq OWNED BY public.sessions.id;
 
 CREATE TABLE public.urls (
     id integer NOT NULL,
-    "shortUrl" character varying(20) NOT NULL,
-    url text NOT NULL,
-    "visitCount" integer DEFAULT 0 NOT NULL,
-    "createdAt" timestamp without time zone DEFAULT now() NOT NULL
+    short_url character varying(20) NOT NULL,
+    original_url text NOT NULL,
+    visit_count integer DEFAULT 0 NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    user_id integer
 );
 
 
@@ -95,7 +96,7 @@ CREATE TABLE public.users (
     name character varying(50) NOT NULL,
     email character varying(100) NOT NULL,
     password character varying(60) NOT NULL,
-    "createdAt" timestamp without time zone DEFAULT now() NOT NULL
+    created_at timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
@@ -196,11 +197,11 @@ ALTER TABLE ONLY public.urls
 
 
 --
--- Name: urls urls_shortUrl_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: urls urls_short_url_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.urls
-    ADD CONSTRAINT "urls_shortUrl_key" UNIQUE ("shortUrl");
+    ADD CONSTRAINT urls_short_url_key UNIQUE (short_url);
 
 
 --
@@ -217,6 +218,22 @@ ALTER TABLE ONLY public.users
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: sessions sessions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.sessions
+    ADD CONSTRAINT sessions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: urls urls_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.urls
+    ADD CONSTRAINT urls_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
