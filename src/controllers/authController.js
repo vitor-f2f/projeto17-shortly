@@ -38,7 +38,7 @@ export const signIn = async (req, res) => {
         const token = uuid();
         const exp = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
         const query =
-            "INSERT INTO tokens (user_id, token, expiration) VALUES ($1, $2, $3)";
+            "INSERT INTO sessions (user_id, token, expiration) VALUES ($1, $2, $3)";
         await db.query(query, [user.id, token, exp]);
 
         return res.status(201).send({ token });
