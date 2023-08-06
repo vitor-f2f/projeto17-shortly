@@ -4,14 +4,14 @@ import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
 
 const signUpSchema = Joi.object({
-    name: Joi.string().required(),
+    name: Joi.string().strict().required(),
     email: Joi.string().email().required(),
     password: Joi.string().required(),
     confirmPassword: Joi.ref("password"),
 });
 
 const signInSchema = Joi.object({
-    email: Joi.string().email().required(),
+    email: Joi.string().email().strict().required(),
     password: Joi.string().required(),
 });
 
@@ -41,7 +41,7 @@ export const signIn = async (req, res) => {
             "INSERT INTO sessions (user_id, token, expiration) VALUES ($1, $2, $3)";
         await db.query(query, [user.id, token, exp]);
 
-        return res.status(201).send({ token });
+        return res.status(200).send({ token });
     } catch (error) {
         console.error("Erro ao tentar realizar login:", error);
         return res.sendStatus(500);
