@@ -23,10 +23,11 @@ export const shortenUrl = async (req, res) => {
             return res.status(422).send("Link inválido");
         }
 
+        const user_id = session.rows[0].user_id;
         const shortened = nanoid(8);
         const query =
-            "INSERT INTO urls (original_url, short_url) values ($1, $2) RETURNING id";
-        const insert = await db.query(query, [url, shortened]);
+            "INSERT INTO urls (original_url, short_url, user_id) values ($1, $2, $3) RETURNING id";
+        const insert = await db.query(query, [url, shortened, user_id]);
         const { id } = insert.rows[0];
 
         return res.status(201).json({ id, short_url: shortened });
@@ -54,7 +55,7 @@ export const openUrl = async (req, res) => {
         const { original_url } = query.rows[0];
 
         await db.query(
-            "UPDATE urls SET visitCount = visitCount + 1 WHERE short_url = $1",
+            "UPDATE urls SET visit_count = visit_count + 1 WHERE short_url = $1",
             [shortUrl]
         );
 
@@ -90,7 +91,32 @@ export const getById = async (req, res) => {
 };
 
 export const deleteUrl = async (req, res) => {
+    const { id } = req.params;
     try {
+        if (!query.rows.length > 0) {
+            return res.status(404).send("ID inválido");
+        }
+        const { authorization } = req.headers;
+        if (!authorization || !authorization.startsWith("Bearer ")) {
+            return res.status(401).send("Erro de autenticação");
+        }
+
+        const token = authorization.replace("Bearer ", "");
+        const session = await db.query(
+            "SELECT * FROM sessions WHERE token = $1",
+            [token]
+        );
+        if (!session.rows.length > 0) {
+            return res.status(401).send("Erro de autenticação");
+        }
+
+        const parsed = parseInt(id);
+        if (isNaN(parsed)) {
+            return res.status(404).send("ID inválido");
+        }
+        const query = await db.query("SELECT * FROM urls WHERE id = $1", [
+            parsed,
+        ]);
     } catch (error) {
         console.error("Erro ao :", error);
         return res.sendStatus(500);
