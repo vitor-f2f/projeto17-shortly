@@ -1,5 +1,5 @@
 import { db } from "../db.js";
-import nanoid from "nanoid";
+import { nanoid } from "nanoid";
 import Joi from "joi";
 
 export const shortenUrl = async (req, res) => {
