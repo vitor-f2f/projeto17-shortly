@@ -2,6 +2,10 @@ import { db } from "../db.js";
 import { nanoid } from "nanoid";
 import Joi from "joi";
 
+const urlSchema = Joi.object({
+    url: Joi.string().uri().required(),
+});
+
 export const shortenUrl = async (req, res) => {
     try {
         const { authorization } = req.headers;
@@ -18,12 +22,12 @@ export const shortenUrl = async (req, res) => {
             return res.status(401).send("Erro de autenticação");
         }
 
-        const { url } = req.body;
-        if (!url || typeof url !== "string" || !url.startsWith("https://")) {
+        const { error, value } = urlSchema.validate(req.body);
+        if (error) {
             return res.status(422).send("Link inválido");
         }
-
         const user_id = session.rows[0].user_id;
+        const { url } = value;
         const shortened = nanoid(8);
         const query =
             "INSERT INTO urls (original_url, short_url, user_id) values ($1, $2, $3) RETURNING id";
