@@ -30,7 +30,7 @@ export const shortenUrl = async (req, res) => {
         const insert = await db.query(query, [url, shortened, user_id]);
         const { id } = insert.rows[0];
 
-        return res.status(201).json({ id, short_url: shortened });
+        return res.status(201).json({ id, shortUrl: shortened });
     } catch (error) {
         console.error("Erro ao :", error);
         return res.sendStatus(500);
@@ -93,9 +93,6 @@ export const getById = async (req, res) => {
 export const deleteUrl = async (req, res) => {
     const { id } = req.params;
     try {
-        if (!query.rows.length > 0) {
-            return res.status(404).send("ID inválido");
-        }
         const { authorization } = req.headers;
         if (!authorization || !authorization.startsWith("Bearer ")) {
             return res.status(401).send("Erro de autenticação");
@@ -117,6 +114,18 @@ export const deleteUrl = async (req, res) => {
         const query = await db.query("SELECT * FROM urls WHERE id = $1", [
             parsed,
         ]);
+        if (!query.rows.length > 0) {
+            return res.status(404).send("ID inválido");
+        }
+
+        const url_user = query.rows[0].user_id;
+        const session_user = session.rows[0].user_id;
+        if (url_user !== session_user) {
+            return res.status(401).send("Usuário não autorizado.");
+        }
+
+        await db.query("DELETE FROM urls WHERE id = $1", [parsed]);
+        return res.sendStatus(204);
     } catch (error) {
         console.error("Erro ao :", error);
         return res.sendStatus(500);
