@@ -43,18 +43,18 @@ export const getUser = async (req, res) => {
         const userId = session.rows[0].user_id;
         const query = `
             SELECT json_build_object(
-                "id", u.id,
-                "name", u.name, 
-                "visitCount", SUM(url."visitCount"),
-                "shortenedUrls", json_agg(
+                'id', u.id,
+                'name', u.name, 
+                'visitCount', COALESCE(SUM(url."visitCount"), 0),
+                'shortenedUrls', json_agg(
                     json_build_object(
-                        "id", url.id,
-                        "shortUrl", url."shortUrl",
-                        "url", url.url,
-                        "visitCount", url."visitCount"
+                        'id', url.id,
+                        'shortUrl', url."shortUrl",
+                        'url', url.url,
+                        'visitCount', url."visitCount"
                     )
                 )
-            ) AS user_data
+            )::json AS user_data
             FROM users u
             LEFT JOIN urls url ON u.id = url.user_id
             WHERE u.id = $1
