@@ -4,19 +4,19 @@ import Joi from "joi";
 export const getRanking = async (req, res) => {
     try {
         const query = `
-            SELECT u.id, u.name, COALESCE(SUM(url."visitCount"), 0) AS "visitCount"
+            SELECT 
+                u.id AS "id",
+                u.name AS "name",
+                COALESCE(COUNT(DISTINCT url.id), 0) AS "linksCount",
+                COALESCE(SUM(url."visitCount"), 0) AS "visitCount"
             FROM users u
             LEFT JOIN urls url ON u.id = url.user_id
             GROUP BY u.id, u.name
-            ORDER BY "linksCount" DESC
+            ORDER BY "visitCount" DESC
             LIMIT 10;
         `;
         const result = await db.query(query);
-        const ranking = result.rows.map((user) => ({
-            id: user.id,
-            name: user.name,
-            linksCount: parseInt(user.linksCount),
-        }));
+        const ranking = result.rows;
         return res.status(200).json(ranking);
     } catch (error) {
         console.error("Erro ao gerar ranking:", error);
