@@ -17,10 +17,10 @@ const signInSchema = Joi.object({
 
 export const signIn = async (req, res) => {
     let signInInfo = req.body;
-    const { err } = signInSchema.validate(signInInfo, {
+    const { error } = signInSchema.validate(signInInfo, {
         abortEarly: false,
     });
-    if (err) {
+    if (error) {
         return res.status(422).send("Erro de validação do usuário.");
     }
     try {
@@ -50,10 +50,10 @@ export const signIn = async (req, res) => {
 
 export const signUp = async (req, res) => {
     let signUpInfo = req.body;
-    const { err } = signUpSchema.validate(signUpInfo, {
+    const { error } = signUpSchema.validate(signUpInfo, {
         abortEarly: false,
     });
-    if (err) {
+    if (error) {
         return res.status(422).send("Erro de validação do usuário.");
     }
     try {
