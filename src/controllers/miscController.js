@@ -41,29 +41,30 @@ export const getUser = async (req, res) => {
         }
 
         const userId = session.rows[0].user_id;
-        const query = `
-            SELECT json_build_object(
-                'id', u.id,
-                'name', u.name, 
-                'visitCount', COALESCE(SUM(url."visitCount"), 0),
-                'shortenedUrls', json_agg(
-                    json_build_object(
-                        'id', url.id,
-                        'shortUrl', url."shortUrl",
-                        'url', url.url,
-                        'visitCount', url."visitCount"
-                    )
-                )
-            )::json AS user_data
+        const userQuery = `
+            SELECT u.id, u.name, SUM(url."visitCount") AS "visitCount"
             FROM users u
             LEFT JOIN urls url ON u.id = url.user_id
             WHERE u.id = $1
             GROUP BY u.id, u.name
         `;
-        const result = await db.query(query, [userId]);
+        const userResult = await db.query(userQuery, [userId]);
 
-        const user_data = result.rows[0].user_data;
-        const obj = JSON.parse(user_data);
+        const urlsQuery = `
+            SELECT id, "shortUrl", url, "visitCount"
+            FROM urls
+            WHERE user_id = $1
+        `;
+        const urlsResult = await db.query(urlsQuery, [userId]);
+
+        const user = userResult.rows[0];
+
+        const obj = {
+            id: user.id,
+            name: user.name,
+            visitCount: parseInt(user.visitCount),
+            shortenedUrls: urlsResult.rows,
+        };
         return res.status(200).json(obj);
     } catch (error) {
         console.error("Erro ao buscar informações do usuário:", error);
