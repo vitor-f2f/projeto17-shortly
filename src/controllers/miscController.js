@@ -26,31 +26,29 @@ export const getUser = async (req, res) => {
         }
 
         const userId = session.rows[0].user_id;
-        const userQuery = `
-            SELECT u.id, u.name, SUM(url."visitCount") AS "visitCount"
+        const query = `
+            SELECT json_build_object(
+                "id", u.id,
+                "name", u.name, 
+                "visitCount", SUM(url."visitCount"),
+                "shortenedUrls", json_agg(
+                    json_build_object(
+                        "id", url.id,
+                        "shortUrl", url."shortUrl",
+                        "url", url.url,
+                        "visitCount", url."visitCount"
+                    )
+                )
+            ) AS user_data
             FROM users u
             LEFT JOIN urls url ON u.id = url.user_id
             WHERE u.id = $1
             GROUP BY u.id, u.name
         `;
-        const userResult = await db.query(userQuery, [userId]);
+        const result = await db.query(userQuery, [userId]);
 
-        const urlsQuery = `
-            SELECT id, "shortUrl", url, "visitCount"
-            FROM urls
-            WHERE user_id = $1
-        `;
-        const urlsResult = await db.query(urlsQuery, [userId]);
-
-        const user = userResult.rows[0];
-
-        const obj = {
-            id: user.id,
-            name: user.name,
-            visitCount: parseInt(user.visitCount),
-            shortenedUrls: urlsResult.rows,
-        };
-        return res.status(200).json(obj);
+        const { user_data } = result.rows[0];
+        return res.status(200).json(user_data);
     } catch (error) {
         console.error("Erro ao buscar informações do usuário:", error);
         return res.sendStatus(500);
