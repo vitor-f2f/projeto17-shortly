@@ -2,7 +2,7 @@ import { db } from "../db.js";
 import Joi from "joi";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
-import { queries } from "./dbQueries.js";
+import { queries } from "../middleware/dbQueries.js";
 
 const signUpSchema = Joi.object({
     name: Joi.string().strict().required(),

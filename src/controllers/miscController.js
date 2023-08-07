@@ -1,5 +1,5 @@
 import { db } from "../db.js";
-import { queries } from "./dbQueries.js";
+import { queries } from "../middleware/dbQueries.js";
 
 export const getRanking = async (req, res) => {
     try {
