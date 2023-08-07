@@ -6,7 +6,7 @@ import miscRouter from "./miscRouter.js";
 const router = Router();
 
 router.use(authRouter);
-router.use("/urls", urlRouter);
+router.use(urlRouter);
 router.use(miscRouter);
 
 export default router;
