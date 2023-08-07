@@ -12,7 +12,7 @@ const urlRouter = express.Router();
 
 urlRouter.get("/open/:shortUrl", openUrl);
 urlRouter.get("/:id", getById);
-urlRouter.delete("/:id", validateTokenMiddleware, deleteUrl);
-urlRouter.post("/shorten", validateTokenMiddleware, shortenUrl);
+urlRouter.delete("/:id", validateToken, deleteUrl);
+urlRouter.post("/shorten", validateToken, shortenUrl);
 
 export default urlRouter;
