@@ -26,21 +26,7 @@ export const getRanking = async (req, res) => {
 
 export const getUser = async (req, res) => {
     try {
-        const { authorization } = req.headers;
-        if (!authorization || !authorization.startsWith("Bearer ")) {
-            return res.status(401).send("Erro de autenticação");
-        }
-
-        const token = authorization.replace("Bearer ", "");
-        const session = await db.query(
-            "SELECT * FROM sessions WHERE token = $1",
-            [token]
-        );
-        if (!session.rows.length > 0) {
-            return res.status(401).send("Erro de autenticação");
-        }
-
-        const userId = session.rows[0].user_id;
+        const { userId } = req;
         const userQuery = `
             SELECT u.id, u.name, SUM(url."visitCount") AS "visitCount"
             FROM users u

@@ -8,29 +8,11 @@ const urlSchema = Joi.object({
 
 export const shortenUrl = async (req, res) => {
     try {
-        const { authorization } = req.headers;
-        if (!authorization || !authorization.startsWith("Bearer ")) {
-            return res.status(401).send("Erro de autenticação");
-        }
-
-        const token = authorization.replace("Bearer ", "");
-        const session = await db.query(
-            "SELECT * FROM sessions WHERE token = $1",
-            [token]
-        );
-        if (!session.rows.length > 0) {
-            return res.status(401).send("Erro de autenticação");
-        }
-
-        const { error, value } = urlSchema.validate(req.body);
-        if (error) {
-            return res.status(422).send("Link inválido");
-        }
-        const user_id = session.rows[0].user_id;
+        const { userId } = req;
         const { url } = value;
         const shortened = nanoid(8);
         const query = `INSERT INTO urls (url, "shortUrl", user_id) values ($1, $2, $3) RETURNING id`;
-        const insert = await db.query(query, [url, shortened, user_id]);
+        const insert = await db.query(query, [url, shortened, userId]);
         const { id } = insert.rows[0];
 
         return res.status(201).json({ id, shortUrl: shortened });
@@ -95,19 +77,7 @@ export const getById = async (req, res) => {
 export const deleteUrl = async (req, res) => {
     const { id } = req.params;
     try {
-        const { authorization } = req.headers;
-        if (!authorization || !authorization.startsWith("Bearer ")) {
-            return res.status(401).send("Erro de autenticação");
-        }
-
-        const token = authorization.replace("Bearer ", "");
-        const session = await db.query(
-            "SELECT * FROM sessions WHERE token = $1",
-            [token]
-        );
-        if (!session.rows.length > 0) {
-            return res.status(401).send("Erro de autenticação");
-        }
+        const { userId } = req;
 
         const parsed = parseInt(id);
         if (isNaN(parsed)) {
@@ -121,8 +91,7 @@ export const deleteUrl = async (req, res) => {
         }
 
         const url_user = query.rows[0].user_id;
-        const session_user = session.rows[0].user_id;
-        if (url_user !== session_user) {
+        if (url_user !== userId) {
             return res.status(401).send("Usuário não autorizado.");
         }
 
