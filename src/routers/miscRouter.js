@@ -6,6 +6,6 @@ import { validateToken } from "../middleware/validateToken.js";
 const miscRouter = express.Router();
 
 miscRouter.get("/ranking", getRanking);
-miscRouter.get("/users/me", validateTokenMiddleware, getUser);
+miscRouter.get("/users/me", validateToken, getUser);
 
 export default miscRouter;
