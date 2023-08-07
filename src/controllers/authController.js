@@ -2,6 +2,7 @@ import { db } from "../db.js";
 import Joi from "joi";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
+import { queries } from "./dbQueries.js";
 
 const signUpSchema = Joi.object({
     name: Joi.string().strict().required(),
@@ -24,9 +25,7 @@ export const signIn = async (req, res) => {
         return res.status(422).send("Erro de validação do usuário.");
     }
     try {
-        const exists = await db.query("SELECT * FROM users WHERE email = $1", [
-            signInInfo.email,
-        ]);
+        const exists = await db.query(queries.findEmail, [signInInfo.email]);
         const user = exists.rows[0];
         if (
             !user ||
@@ -57,9 +56,7 @@ export const signUp = async (req, res) => {
         return res.status(422).send("Erro de validação do usuário.");
     }
     try {
-        const exists = await db.query("SELECT * FROM users WHERE email = $1", [
-            signUpInfo.email,
-        ]);
+        const exists = await db.query(queries.findEmail, [signUpInfo.email]);
         if (exists.rows.length > 0) {
             return res.status(409).send("Email já cadastrado.");
         }

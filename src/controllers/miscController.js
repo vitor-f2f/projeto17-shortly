@@ -1,21 +1,9 @@
 import { db } from "../db.js";
-import Joi from "joi";
+import { queries } from "./dbQueries.js";
 
 export const getRanking = async (req, res) => {
     try {
-        const query = `
-            SELECT 
-                u.id AS "id",
-                u.name AS "name",
-                COALESCE(COUNT(DISTINCT url.id), 0) AS "linksCount",
-                COALESCE(SUM(url."visitCount"), 0) AS "visitCount"
-            FROM users u
-            LEFT JOIN urls url ON u.id = url.user_id
-            GROUP BY u.id, u.name
-            ORDER BY "visitCount" DESC
-            LIMIT 10;
-        `;
-        const result = await db.query(query);
+        const result = await db.query(queries.getRanking);
         const ranking = result.rows;
         return res.status(200).json(ranking);
     } catch (error) {
@@ -27,21 +15,9 @@ export const getRanking = async (req, res) => {
 export const getUser = async (req, res) => {
     try {
         const userId = res.locals.session.user_id;
-        const userQuery = `
-            SELECT u.id, u.name, SUM(url."visitCount") AS "visitCount"
-            FROM users u
-            LEFT JOIN urls url ON u.id = url.user_id
-            WHERE u.id = $1
-            GROUP BY u.id, u.name
-        `;
-        const userResult = await db.query(userQuery, [userId]);
 
-        const urlsQuery = `
-            SELECT id, "shortUrl", url, "visitCount"
-            FROM urls
-            WHERE user_id = $1
-        `;
-        const urlsResult = await db.query(urlsQuery, [userId]);
+        const userResult = await db.query(queries.getUser, [userId]);
+        const urlsResult = await db.query(queries.getUrlsUser, [userId]);
 
         const user = userResult.rows[0];
 

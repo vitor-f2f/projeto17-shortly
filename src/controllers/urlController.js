@@ -1,6 +1,7 @@
 import { db } from "../db.js";
 import { nanoid } from "nanoid";
 import Joi from "joi";
+import { queries } from "./dbQueries.js";
 
 const urlSchema = Joi.object({
     url: Joi.string().uri().required(),
