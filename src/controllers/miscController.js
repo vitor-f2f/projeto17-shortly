@@ -62,8 +62,9 @@ export const getUser = async (req, res) => {
         `;
         const result = await db.query(query, [userId]);
 
-        const { user_data } = result.rows[0];
-        return res.status(200).json(user_data);
+        const user_data = result.rows[0].user_data;
+        const obj = JSON.parse(user_data);
+        return res.status(200).json(obj);
     } catch (error) {
         console.error("Erro ao buscar informações do usuário:", error);
         return res.sendStatus(500);
