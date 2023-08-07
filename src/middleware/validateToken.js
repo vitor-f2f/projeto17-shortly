@@ -17,7 +17,7 @@ export const validateToken = async (req, res, next) => {
             return res.status(401).send("Erro de autenticação");
         }
 
-        res.locals.sessions = session.rows[0];
+        res.locals.session = session.rows[0];
 
         next();
     } catch (error) {
