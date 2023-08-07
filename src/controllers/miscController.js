@@ -4,7 +4,7 @@ import Joi from "joi";
 export const getRanking = async (req, res) => {
     try {
         const query = `
-            SELECT u.id, u.name, SUM(url."visitCount") AS "linksCount"
+            SELECT u.id, u.name, COALESCE(SUM(url."visitCount"), 0) AS "visitCount"
             FROM users u
             LEFT JOIN urls url ON u.id = url.user_id
             GROUP BY u.id, u.name
