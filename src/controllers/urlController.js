@@ -29,8 +29,7 @@ export const shortenUrl = async (req, res) => {
         const user_id = session.rows[0].user_id;
         const { url } = value;
         const shortened = nanoid(8);
-        const query =
-            "INSERT INTO urls (original_url, short_url, user_id) values ($1, $2, $3) RETURNING id";
+        const query = `INSERT INTO urls (url, "shortUrl", user_id) values ($1, $2, $3) RETURNING id`;
         const insert = await db.query(query, [url, shortened, user_id]);
         const { id } = insert.rows[0];
 
@@ -50,20 +49,20 @@ export const openUrl = async (req, res) => {
     }
     try {
         const query = await db.query(
-            "SELECT * from urls WHERE short_url = $1",
+            `SELECT * from urls WHERE "shortUrl" = $1`,
             [shortUrl]
         );
         if (!query.rows.length > 0) {
             return res.status(404).send("URL inválida.");
         }
-        const { original_url } = query.rows[0];
+        const { url } = query.rows[0];
 
         await db.query(
-            "UPDATE urls SET visit_count = visit_count + 1 WHERE short_url = $1",
+            `UPDATE urls SET "visitCount" = "visitCount" + 1 WHERE "shortUrl" = $1`,
             [shortUrl]
         );
 
-        return res.redirect(original_url);
+        return res.redirect(url);
     } catch (error) {
         console.error("Erro ao buscar URL:", error);
         return res.sendStatus(500);
@@ -85,9 +84,9 @@ export const getById = async (req, res) => {
             return res.status(404).send("ID inválido");
         }
 
-        const { id, short_url, original_url } = query.rows[0];
+        const { id, shortUrl, url } = query.rows[0];
 
-        return res.status(200).json({ id, short_url, original_url });
+        return res.status(200).json({ id, shortUrl, url });
     } catch (error) {
         console.error("Erro ao buscar por ID:", error);
         return res.sendStatus(500);
