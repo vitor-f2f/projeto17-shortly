@@ -42,9 +42,8 @@ export const shortenUrl = async (req, res) => {
 
 export const openUrl = async (req, res) => {
     const { shortUrl } = req.params;
-    const reg = /^[A-Za-z0-9]+$/;
 
-    if (shortUrl.length !== 8 || !reg.test(shortUrl)) {
+    if (shortUrl.length !== 8 || !typeof shortUrl == "string") {
         return res.status(404).send("URL inválida.");
     }
     try {
