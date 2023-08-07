@@ -8,7 +8,7 @@ const urlSchema = Joi.object({
 
 export const shortenUrl = async (req, res) => {
     try {
-        const { userId } = req.locals;
+        const userId = res.locals.session.user_id;
         const { url } = value;
         const shortened = nanoid(8);
         const query = `INSERT INTO urls (url, "shortUrl", user_id) values ($1, $2, $3) RETURNING id`;
@@ -77,7 +77,7 @@ export const getById = async (req, res) => {
 export const deleteUrl = async (req, res) => {
     const { id } = req.params;
     try {
-        const { userId } = req.locals;
+        const userId = res.locals.session.user_id;
 
         const parsed = parseInt(id);
         if (isNaN(parsed)) {

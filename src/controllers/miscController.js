@@ -26,7 +26,7 @@ export const getRanking = async (req, res) => {
 
 export const getUser = async (req, res) => {
     try {
-        const { userId } = req.locals;
+        const userId = res.locals.session.user_id;
         const userQuery = `
             SELECT u.id, u.name, SUM(url."visitCount") AS "visitCount"
             FROM users u
