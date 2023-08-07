@@ -8,6 +8,10 @@ const urlSchema = Joi.object({
 
 export const shortenUrl = async (req, res) => {
     try {
+        const { error, value } = urlSchema.validate(req.body);
+        if (error) {
+            return res.status(422).send("Link inválido");
+        }
         const userId = res.locals.session.user_id;
         const { url } = value;
         const shortened = nanoid(8);
