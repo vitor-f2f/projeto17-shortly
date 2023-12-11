@@ -1,11 +1,11 @@
 import { conflict, notFound, unauthorized } from "../middleware/errorNames.js";
-import { userRepository } from "../repositories/userRepository.js"
+import { usersRepository } from "../repositories/usersRepository.js"
 import { sessionRepository } from "../repositories/sessionRepository.js"
 import { v4 as uuid } from "uuid";
 import bcrypt from "bcrypt";
 
 async function signIn(userData) {
-    const registeredUser = await userRepository.checkEmail(userData.email);
+    const registeredUser = await usersRepository.checkEmail(userData.email);
     if (registeredUser.rowCount === 0)
         throw notFound("User not found.");
 
@@ -21,13 +21,13 @@ async function signIn(userData) {
 }
 
 async function signUp(userData) {
-    const registeredUser = await userRepository.checkEmail(userData.email);
+    const registeredUser = await usersRepository.checkEmail(userData.email);
     if (registeredUser.rowCount !== 0)
         throw conflict("Email already in use.");
 
     const salts = 10;
     const hashedPassword = await bcrypt.hash(userData.password, salts);
-    return await userRepository.createUser(userData.name, userData.email, hashedPassword);
+    return await usersRepository.createUser(userData.name, userData.email, hashedPassword);
 };
 
 export const authService = {

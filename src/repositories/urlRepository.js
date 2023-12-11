@@ -30,10 +30,19 @@ async function deleteUrl(id) {
     await db.query("DELETE FROM urls WHERE id = $1", [id]);
 }
 
+async function getUrlsByUserId(userId) {
+    return db.query(`
+        SELECT id, "shortUrl", url, "visitCount"
+        FROM urls
+        WHERE user_id = $1;
+    `, [userId]);
+}
+
 export const urlRepository = {
     addUrl,
     getFullUrl,
     increaseVisits,
     fetchUrlById,
-    deleteUrl
+    deleteUrl,
+    getUrlsByUserId
 }

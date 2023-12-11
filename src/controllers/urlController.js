@@ -1,7 +1,7 @@
 import httpStatus from "http-status";
 import { urlService } from "../services/urlServices.js";
 
-export async function shortenUrl(req, res) {
+export const shortenUrl = async (req, res) => {
     const { url } = req.body;
     const userId = res.locals.session.user_id;
     const result = await urlService.shortenUrl(userId, url);

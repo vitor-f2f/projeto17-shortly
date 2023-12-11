@@ -2,7 +2,7 @@ import express from "express";
 import "express-async-errors";
 import cors from "cors";
 import dotenv from "dotenv";
-import { authRouter, urlRouter, miscRouter } from "./routers/index.js";
+import { authRouter, urlRouter, usersRouter } from "./routers/index.js";
 import errorHandler from "./middleware/errorHandler.js";
 
 dotenv.config();
@@ -13,7 +13,7 @@ app
     .use(express.json())
     .use(authRouter)
     .use(urlRouter)
-    .use(miscRouter)
+    .use(usersRouter)
     .use(errorHandler);
 
 const port = process.env.PORT || 5000;

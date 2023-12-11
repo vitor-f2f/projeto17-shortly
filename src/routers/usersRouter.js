@@ -1,11 +1,11 @@
 import Router from "express";
-import { getRanking, getUser } from "../controllers/miscController.js";
+import { getRanking, getUser } from "../controllers/usersController.js";
 import { validateToken } from "../middleware/validateToken.js";
 
-const miscRouter = Router();
+const usersRouter = Router();
 
-miscRouter
+usersRouter
     .get("/ranking", getRanking)
     .get("/users/me", validateToken, getUser);
 
-export { miscRouter };
+export { usersRouter };
