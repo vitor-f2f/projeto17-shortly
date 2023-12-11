@@ -1,11 +1,5 @@
 import { db } from "../db.js";
 import { nanoid } from "nanoid";
-import Joi from "joi";
-import { queries } from "../middleware/dbQueries.js";
-
-const urlSchema = Joi.object({
-    url: Joi.string().uri().required(),
-});
 
 export const shortenUrl = async (req, res) => {
     try {
